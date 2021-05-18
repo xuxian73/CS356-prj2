@@ -4172,6 +4172,7 @@ static void
 __setscheduler(struct rq *rq, struct task_struct *p, int policy, int prio)
 {
 	p->policy = policy;
+	printk("__setscheduler: set policy to %d\n", policy);
 	p->rt_priority = prio;
 	p->normal_prio = normal_prio(p);
 	/* we are holding p->pi_lock already */
