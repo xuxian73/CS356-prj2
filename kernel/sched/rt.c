@@ -2029,6 +2029,7 @@ static unsigned int get_rr_interval_rt(struct rq *rq, struct task_struct *task)
 	/*
 	 * Time slice is 0 for SCHED_FIFO tasks
 	 */
+	printk("get_rr_interval_rt\n");
 	if (task->policy == SCHED_RR)
 		return RR_TIMESLICE;
 	else

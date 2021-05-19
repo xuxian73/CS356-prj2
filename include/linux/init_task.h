@@ -170,7 +170,7 @@ extern struct task_group root_task_group;
 		.nr_cpus_allowed = NR_CPUS,				\
 	},								\
 	.wrr	= {						\
-		.run_list	= LIST_HEAD_INIT(tsk.wrr.run_list),	\
+		.run_list	= LIST_HEAD_INIT(tsk.rt.run_list),	\
 		.time_slice	= RR_TIMESLICE,				\
 		.nr_cpus_allowed = NR_CPUS,				\
 	},								\

@@ -161,6 +161,9 @@ static void
 set_curr_task_wrr(struct rq *rq)
 {
 	struct task_struct* p = rq->curr;
+	#ifdef WRR_DEBUG
+	printk("set_curr_task_wrr(WRR)\n");
+	#endif
 	p->se.exec_start =  rq->clock_task;
 }
 
@@ -175,17 +178,23 @@ get_rr_interval_wrr(struct rq *rq, struct task_struct *task)
 	#endif
 
 	if (task->policy == SCHED_WRR) {
-		if (!(autogroup_path(group, path, 64)))
+		if (!autogroup_path(group, path, 64))
 		{
-			return -1;
+			if (!group->css.cgroup) {
+				path[0] = '\0';
+				return 0;
+			}
+			cgroup_path(group->css.cgroup, path, 64);
 		}
 		#ifdef WRR_DEBUG
 		printk("GOURP_PATH: %s\n", path);
 		#endif
 		if (path[1] == 'b')
 			return WRR_BG_TIMESLICE;
-		else 
+		else {
+			printk("return %d\n", WRR_FG_TIMESLICE);
 			return WRR_FG_TIMESLICE;
+		}
 	}
 	else return 0;	
 }
@@ -210,10 +219,11 @@ task_tick_wrr(struct rq *rq, struct task_struct *p, int queued)
 	
 	#ifdef WRR_DEBUG
 	printk("task_tick_wrr: task_group %s\n", path);
-	printk("cpu: %d task_tick: %d, time_slice: %d\n",
+	printk("cpu: %d task_tick: %d, time_slice: %d, sched_class: %d\n",
 		cpu_of(rq),
 		p->pid,
-		p->wrr.time_slice);
+		p->wrr.time_slice,
+		(int)p->sched_class);
 	time_slice = get_rr_interval_wrr(rq, p);
 	#endif
 	if (--p->wrr.time_slice)
@@ -267,9 +277,7 @@ const struct sched_class wrr_sched_class = {
 
 	.set_curr_task          = set_curr_task_wrr,/* Required */
 	.task_tick		= task_tick_wrr,			/* Required */
-
 	.get_rr_interval	= get_rr_interval_wrr,
-
 	.prio_changed		= prio_changed_wrr,		/* Required */
 	.switched_to		= switched_to_wrr,		/* Required */
 };

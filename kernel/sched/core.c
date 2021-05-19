@@ -4171,6 +4171,7 @@ static struct task_struct *find_process_by_pid(pid_t pid)
 static void
 __setscheduler(struct rq *rq, struct task_struct *p, int policy, int prio)
 {
+	int a = (int)&wrr_sched_class;
 	p->policy = policy;
 	printk("__setscheduler: set policy to %d\n", policy);
 	p->rt_priority = prio;
@@ -4178,11 +4179,17 @@ __setscheduler(struct rq *rq, struct task_struct *p, int policy, int prio)
 	/* we are holding p->pi_lock already */
 	p->prio = rt_mutex_getprio(p);
 	if (policy == SCHED_WRR) {
+		printk("wrr: %d", a);
+		a = (int)&fair_sched_class;
+		printk("fair: %d", a);
 		p->sched_class = &wrr_sched_class;
+		printk("__setscheduler: set %d wrr %d\n", (int)p->pid, (int)p->sched_class);
 	} else if (rt_prio(p->prio))
 		p->sched_class = &rt_sched_class;
-	else
+	else {
+		printk("__setscheduler: set fair\n");
 		p->sched_class = &fair_sched_class;
+	}
 	set_load_weight(p);
 }
 
@@ -4977,22 +4984,23 @@ SYSCALL_DEFINE2(sched_rr_get_interval, pid_t, pid,
 	struct rq *rq;
 	int retval;
 	struct timespec t;
-
 	if (pid < 0)
 		return -EINVAL;
 
 	retval = -ESRCH;
 	rcu_read_lock();
 	p = find_process_by_pid(pid);
+	printk("pid: %d", pid);
 	if (!p)
 		goto out_unlock;
 
 	retval = security_task_getscheduler(p);
 	if (retval)
 		goto out_unlock;
-
 	rq = task_rq_lock(p, &flags);
+	printk("pid: %d p->sched_class: %d\n", (int)p->pid, (int)p->sched_class);
 	time_slice = p->sched_class->get_rr_interval(rq, p);
+	printk("sched_rr_get_interval: %d\n", time_slice);
 	task_rq_unlock(rq, p, &flags);
 
 	rcu_read_unlock();
