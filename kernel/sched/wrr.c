@@ -67,7 +67,6 @@ static void
 enqueue_wrr_entity(struct rq *rq, struct sched_wrr_entity *wrr_se, bool head)
 {
 	struct list_head* q = &(rq->wrr.queue);
-
 	if (head)
 		list_add(&wrr_se->run_list, q);
 	else
@@ -110,9 +109,9 @@ requeue_task_wrr(struct rq* rq, struct task_struct* p, int head)
 {
 	struct sched_wrr_entity* wrr_se = &p->wrr;
 	struct list_head *queue = &(rq->wrr.queue);
-	#ifdef WRR_DEBUG
-	printk("requeue task: %d\n", p->pid);
-	#endif
+	// #ifdef WRR_DEBUG
+	// printk("requeue task: %d\n", p->pid);
+	// #endif
 	
 	if (head)
 		list_move(&wrr_se->run_list, queue);

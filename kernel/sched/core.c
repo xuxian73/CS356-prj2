@@ -4183,11 +4183,9 @@ __setscheduler(struct rq *rq, struct task_struct *p, int policy, int prio)
 		a = (int)&fair_sched_class;
 		printk("fair: %d", a);
 		p->sched_class = &wrr_sched_class;
-		printk("__setscheduler: set %d wrr %d\n", (int)p->pid, (int)p->sched_class);
 	} else if (rt_prio(p->prio))
 		p->sched_class = &rt_sched_class;
 	else {
-		printk("__setscheduler: set fair\n");
 		p->sched_class = &fair_sched_class;
 	}
 	set_load_weight(p);
@@ -4248,7 +4246,6 @@ recheck:
 				policy != SCHED_IDLE && policy != SCHED_WRR)
 			return -EINVAL;
 	}
-	printk("passed\n");
 	/*
 	 * Valid priorities for SCHED_FIFO and SCHED_RR are
 	 * 1..MAX_USER_RT_PRIO-1, valid priority for SCHED_NORMAL,
